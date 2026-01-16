@@ -1,77 +1,19 @@
-import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import Home from './pages/Home';
+import Chat from './pages/Chatbot';
+import About from './pages/About';
 
 export default function App() {
-    const [message, setMessage] = useState("");
-    const [result, setResult] = useState(null);
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false); // new state
+  return (
 
-    const sendMessage = async () => {
-        setError("");
-        setResult(null);
-        setLoading(true); // start loading
-
-        try {
-            const res = await fetch("https://symtriage.onrender.com/triage", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                setError(data.error);
-            } else {
-                setResult(data);
-            }
-        } catch {
-            setError("Unable to connect to server.");
-        } finally {
-            setLoading(false); // stop loading
-        }
-    };
-
-    return (
-        <div style={{ maxWidth: 600, margin: "50px auto", fontFamily: "Arial" }}>
-            <h2>Symptom Checker</h2>
-
-            <p style={{ fontSize: 14 }}>
-                Enter symptoms you are experiencing. This tool does not provide
-                diagnoses or treatment.
-            </p>
-
-            <textarea
-                rows={4}
-                style={{ width: "100%" }}
-                placeholder="e.g. I have fever and headache"
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault(); // prevent newline
-                        sendMessage();
-                    }
-                }}
-            />
-
-            <button onClick={sendMessage} style={{ marginTop: 10 }} disabled={loading}>
-                {loading ? "⏳ Waiting for AI..." : "Get Assessment"}
-            </button>
-
-            {error && <p style={{ color: "red" }}>{error}</p>}
-
-            {result && (
-                <div style={{ marginTop: 20 }}>
-                    <p><b>Urgency:</b> {result.urgency}</p>
-                    <p><b>Department:</b> {result.department}</p>
-                    <p><b>Explanation:</b> {result.explanation}</p>
-                    <p><b>Medical Attention:</b> {result.medical_attention}</p>
-                    <p style={{ fontSize: 12, marginTop: 10 }}>
-                        {result.disclaimer}
-                    </p>
-                </div>
-            )}
-        </div>
-    );
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+      </div>
+  );
 }
