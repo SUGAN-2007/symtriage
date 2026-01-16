@@ -1,7 +1,7 @@
  export const symptomKeywords = [
         // General / common
         "fever", "high temperature", "chills", "sweating", "fatigue", "weakness", "cold", "malaise", "Puffy", "swollen tongue",
-        "headache", "dizziness", "confusion", "memory problems", "blurred vision", "vision problems", "hunger", "thirst",
+        "headache", "dizziness", "confusion", "memory problems", "blurred vision", "vision problems", "hunger", "thirst", "cramp",
 
         // Gastrointestinal
         "nausea", "vomit", "vomiting", "throwing up", "diarrhea", "constipation", "abdominal pain", "bloating",
