@@ -1,10 +1,31 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import AnimatedButton from "../components/AnimatedButton";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 export default function Chat() {
   const [message, setMessage] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const prefersReduced = useReducedMotion();
+
+  const resultContainerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.4, ease: "easeOut" },
+    },
+    exit: { opacity: 0, y: 20, transition: { duration: 0.2 } },
+  };
+
+  const shakeVariants = {
+    shake: {
+      x: prefersReduced ? [0] : [-4, 4, -4, 4, 0],
+      transition: { duration: 0.3, ease: "easeInOut" },
+    },
+  };
 
   const sendMessage = async () => {
     if (!message.trim()) return;
@@ -56,20 +77,29 @@ export default function Chat() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
         {/* Header */}
-        <header className="text-center mb-10">
+        <motion.header
+          className="text-center mb-10"
+          initial={prefersReduced ? false : { opacity: 0, y: -20 }}
+          animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
+          transition={
+            prefersReduced
+              ? { duration: 0 }
+              : { duration: 0.4, ease: "easeOut" }
+          }
+        >
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
-            Symtom Assessment
+            Symptom Assessment
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Describe what you are experiencing to receive urgency guidance.
             This tool does not diagnose or treat medical conditions.
           </p>
-        </header>
+        </motion.header>
 
         {/* Input Section */}
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 mb-8">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Your symtoms
+            Your symptoms
           </label>
 
           <textarea
@@ -87,94 +117,175 @@ export default function Chat() {
               Press Enter to submit • Shift + Enter for a new line
             </p>
 
-            <button
+            <AnimatedButton
               onClick={sendMessage}
-              disabled={loading || !message.trim()}
-              className="bg-[#4a51bd] text-white px-8 py-2.5 rounded-xl font-medium hover:bg-[#3a41ad] transition disabled:bg-gray-300"
+              disabled={!message.trim()}
+              loading={loading}
             >
-              {loading ? "Analyzing..." : "Get Assessment"}
-            </button>
+              Get Assessment
+            </AnimatedButton>
           </div>
         </section>
 
         {/* Error */}
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-800">
-            {error}
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+              variants={shakeVariants}
+              animate="shake"
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              <p className="text-sm text-red-800 font-medium">Error</p>
+              <p className="text-sm text-red-700">{error}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Results */}
-        {result && (
-          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900">
-                Assessment Result
-              </h2>
-              <button
-                onClick={resetAssessment}
-                className="text-sm text-[#4a51bd] font-medium hover:underline"
-              >
-                New assessment
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">
-                  Urgency Level
-                </p>
-                <span
-                  className={`inline-block px-4 py-2 rounded-full border text-sm font-semibold ${urgencyStyle(
-                    result.urgency
-                  )}`}
+        <AnimatePresence>
+          {result && (
+            <motion.section
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8"
+              variants={resultContainerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  Assessment Result
+                </h2>
+                <motion.button
+                  onClick={resetAssessment}
+                  className="text-sm text-[#4a51bd] font-medium hover:underline transition-colors"
+                  whileHover={prefersReduced ? {} : { scale: 1.05 }}
+                  whileTap={prefersReduced ? {} : { scale: 0.95 }}
                 >
-                  {result.urgency}
-                </span>
+                  New assessment
+                </motion.button>
               </div>
 
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">
-                  Recommended Department
-                </p>
-                <p className="text-gray-900">{result.department}</p>
-              </div>
+              <div className="space-y-6">
+                <motion.div
+                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
+                  transition={
+                    prefersReduced
+                      ? { duration: 0 }
+                      : { duration: 0.3, ease: "easeOut" }
+                  }
+                >
+                  <p className="text-sm font-medium text-gray-700 mb-1">
+                    Urgency Level
+                  </p>
+                  <motion.span
+                    className={`inline-block px-4 py-2 rounded-full border text-sm font-semibold ${urgencyStyle(
+                      result.urgency
+                    )}`}
+                    initial={prefersReduced ? false : { opacity: 0, scale: 0.95 }}
+                    animate={
+                      prefersReduced ? {} : { opacity: 1, scale: 1 }
+                    }
+                    transition={
+                      prefersReduced
+                        ? { duration: 0 }
+                        : { duration: 0.3, ease: "easeOut" }
+                    }
+                  >
+                    {result.urgency}
+                  </motion.span>
+                </motion.div>
 
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">
-                  Explanation
-                </p>
-                <p className="text-gray-700 leading-relaxed">
-                  {result.explanation}
-                </p>
-              </div>
+                <motion.div
+                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
+                  transition={
+                    prefersReduced
+                      ? { duration: 0 }
+                      : { duration: 0.3, delay: 0.1, ease: "easeOut" }
+                  }
+                >
+                  <p className="text-sm font-medium text-gray-700 mb-1">
+                    Recommended Department
+                  </p>
+                  <p className="text-gray-900">{result.department}</p>
+                </motion.div>
 
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-1">
-                  Medical Attention
-                </p>
-                <p className="text-gray-700 leading-relaxed">
-                  {result.medical_attention}
-                </p>
-              </div>
+                <motion.div
+                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
+                  transition={
+                    prefersReduced
+                      ? { duration: 0 }
+                      : { duration: 0.3, delay: 0.15, ease: "easeOut" }
+                  }
+                >
+                  <p className="text-sm font-medium text-gray-700 mb-1">
+                    Explanation
+                  </p>
+                  <p className="text-gray-700 leading-relaxed">
+                    {result.explanation}
+                  </p>
+                </motion.div>
 
-              <div className="bg-gray-50 border-l-4 border-gray-400 p-4 rounded-lg">
-                <p className="text-xs text-gray-600">
-                  {result.disclaimer}
-                </p>
+                <motion.div
+                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
+                  transition={
+                    prefersReduced
+                      ? { duration: 0 }
+                      : { duration: 0.3, delay: 0.2, ease: "easeOut" }
+                  }
+                >
+                  <p className="text-sm font-medium text-gray-700 mb-1">
+                    Medical Attention
+                  </p>
+                  <p className="text-gray-700 leading-relaxed">
+                    {result.medical_attention}
+                  </p>
+                </motion.div>
+
+                <motion.div
+                  className="bg-gray-50 border-l-4 border-gray-400 p-4 rounded-lg"
+                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
+                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
+                  transition={
+                    prefersReduced
+                      ? { duration: 0 }
+                      : { duration: 0.3, delay: 0.25, ease: "easeOut" }
+                  }
+                >
+                  <p className="text-xs text-gray-600">
+                    {result.disclaimer}
+                  </p>
+                </motion.div>
               </div>
-            </div>
-          </section>
-        )}
+            </motion.section>
+          )}
+        </AnimatePresence>
 
         {/* Footer Disclaimer */}
-        {!result && (
-          <div className="mt-8 bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
-            <strong>Medical Disclaimer:</strong> This tool provides triage guidance only.
-            It does not replace professional medical advice. In emergencies, contact
-            emergency services immediately.
-          </div>
-        )}
+        <AnimatePresence>
+          {!result && (
+            <motion.div
+              className="mt-8 bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800"
+              initial={prefersReduced ? false : { opacity: 0, y: 20 }}
+              animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
+              exit={prefersReduced ? false : { opacity: 0, y: 20 }}
+              transition={
+                prefersReduced
+                  ? { duration: 0 }
+                  : { duration: 0.3, ease: "easeOut" }
+              }
+            >
+              <strong>Medical Disclaimer:</strong> This tool provides triage guidance only.
+              It does not replace professional medical advice. In emergencies, contact
+              emergency services immediately.
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </main>
   );

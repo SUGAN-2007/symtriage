@@ -1,9 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useReducedMotion } from "../hooks/useReducedMotion";
 
 export default function Header() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const prefersReduced = useReducedMotion();
 
   const isActive = (path) => location.pathname === path;
 
@@ -11,7 +14,7 @@ export default function Header() {
     <Link
       to={path}
       onClick={() => setOpen(false)}
-      className={`relative text-sm font-medium transition-colors ${
+      className={`relative text-sm font-medium transition-colors duration-200 ${
         isActive(path)
           ? "text-[#4a51bd]"
           : "text-gray-600 hover:text-[#4a51bd]"
@@ -19,7 +22,16 @@ export default function Header() {
     >
       {label}
       {isActive(path) && (
-        <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#4a51bd] rounded" />
+        <motion.span
+          layoutId="underline"
+          className="absolute -bottom-1 left-0 w-full h-0.5 bg-[#4a51bd] rounded"
+          initial={false}
+          transition={
+            prefersReduced
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 380, damping: 40 }
+          }
+        />
       )}
     </Link>
   );
@@ -36,7 +48,7 @@ export default function Header() {
           >
             <img src="/icon.png" alt="SympTriage" className="h-8 w-8" />
             <span className="text-lg sm:text-xl font-semibold text-gray-900">
-              SymTriage
+              symtriage
             </span>
           </Link>
 
@@ -48,9 +60,11 @@ export default function Header() {
           </nav>
 
           {/* Mobile Toggle */}
-          <button
+          <motion.button
             onClick={() => setOpen(!open)}
             className="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none"
+            whileHover={prefersReduced ? {} : { scale: 1.05 }}
+            whileTap={prefersReduced ? {} : { scale: 0.95 }}
           >
             <svg
               className="h-6 w-6"
@@ -74,20 +88,36 @@ export default function Header() {
                 />
               )}
             </svg>
-          </button>
+          </motion.button>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {open && (
-        <div className="md:hidden border-t border-gray-100 bg-white">
-          <div className="px-4 py-4 space-y-4">
-            {navLink("/", "Home")}
-            {navLink("/chat", "Chat")}
-            {navLink("/about", "About")}
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="md:hidden border-t border-gray-100 bg-white overflow-hidden"
+            initial={
+              prefersReduced
+                ? false
+                : { height: 0, opacity: 0 }
+            }
+            animate={prefersReduced ? {} : { height: "auto", opacity: 1 }}
+            exit={prefersReduced ? false : { height: 0, opacity: 0 }}
+            transition={
+              prefersReduced
+                ? { duration: 0 }
+                : { duration: 0.3, ease: "easeOut" }
+            }
+          >
+            <div className="px-4 py-4 space-y-4">
+              {navLink("/", "Home")}
+              {navLink("/chat", "Chat")}
+              {navLink("/about", "About")}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
