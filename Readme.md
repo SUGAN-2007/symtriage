@@ -1,4 +1,4 @@
-# SympTriage – AI-Based Medical Symptom Triage System
+# SymTriage – AI-Based Medical Symptom Triage System
 
 SympTriage is a **healthcare-focused web application** that helps users understand the **urgency of their symptoms** and the **appropriate medical department** to consult.
 
