@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import Chat from './pages/Chatbot';
 import About from './pages/About';
+import NotFound from './pages/Notfound';
 
 // Component to handle scroll to top on route change
 function ScrollToTop() {
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/about" element={<About />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );

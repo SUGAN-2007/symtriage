@@ -91,33 +91,64 @@ export default function Header() {
           </motion.button>
         </div>
       </div>
+{/* Mobile Menu */}
+<AnimatePresence>
+  {open && (
+    <>
+      {/* Background overlay */}
+      <motion.div
+        className="fixed inset-0 bg-black/10 backdrop-blur-[1px] md:hidden z-40"
+        onClick={() => setOpen(false)}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      />
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            className="md:hidden border-t border-gray-100 bg-white overflow-hidden"
-            initial={
-              prefersReduced
-                ? false
-                : { height: 0, opacity: 0 }
-            }
-            animate={prefersReduced ? {} : { height: "auto", opacity: 1 }}
-            exit={prefersReduced ? false : { height: 0, opacity: 0 }}
-            transition={
-              prefersReduced
-                ? { duration: 0 }
-                : { duration: 0.3, ease: "easeOut" }
-            }
-          >
-            <div className="px-4 py-4 space-y-4">
-              {navLink("/", "Home")}
-              {navLink("/chat", "Chat")}
-              {navLink("/about", "About")}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Menu panel */}
+      <motion.div
+        className="md:hidden fixed top-16 left-0 right-0 z-50 
+                   bg-white/90 backdrop-blur-md 
+                   border-b border-gray-200 
+                   shadow-lg"
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -12 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+      >
+        <nav className="flex flex-col divide-y divide-gray-100">
+          {[
+            { path: "/", label: "Home" },
+            { path: "/chat", label: "Chat" },
+            { path: "/about", label: "About" },
+          ].map(({ path, label }) => (
+            <Link
+              key={path}
+              to={path}
+              onClick={() => setOpen(false)}
+              className={`
+                relative w-full py-4 text-center text-sm font-medium
+                transition-all duration-200
+                ${
+                  isActive(path)
+                    ? "text-[#4a51bd] bg-[#4a51bd]/10"
+                    : "text-gray-700 hover:bg-gray-50 active:bg-gray-100"
+                }
+              `}
+            >
+              {label}
+
+              {/* Active indicator */}
+              {isActive(path) && (
+                <span className="absolute inset-x-10 bottom-1 h-0.5 bg-[#4a51bd]/60 rounded-full" />
+              )}
+            </Link>
+          ))}
+        </nav>
+      </motion.div>
+    </>
+  )}
+</AnimatePresence>
+
     </header>
   );
 }
