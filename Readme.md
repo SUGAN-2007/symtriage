@@ -1,11 +1,11 @@
-# SympTriage – AI-Based Medical Symptom Triage System
+# SymTriage – AI-Based Medical Symptom Triage System
 
 SympTriage is a **healthcare-focused web application** that helps users understand the **urgency of their symptoms** and the **appropriate medical department** to consult.
 
 The system provides **triage guidance only**.  
 It does **NOT** diagnose diseases, prescribe medication, or replace professional medical advice.
 
----
+  - ####  vercel deploy link : **https://symtriage.vercel.app/**
 
 ## 🚀 Overview
 
@@ -31,7 +31,7 @@ The design prioritizes **safety, privacy, and responsible AI use in healthcare**
 - **Framer Motion** (subtle animations with reduced-motion support)
 
 ### Backend
-- **Express.js**
+- **Supabase edge function**
 - **OpenRouter API** (GPT-4o-mini)
 - **Supabase** (PostgreSQL – anonymized logging)
 
@@ -43,15 +43,15 @@ The design prioritizes **safety, privacy, and responsible AI use in healthcare**
 symtriage/
 ├── frontend/
 │   ├── src/
-│   │   ├── components/     Header, animated UI components
-│   │   ├── pages/          Home, Chat, About
-│   │   ├── hooks/          useReducedMotion (accessibility)
-│   │   └── App.jsx         Application routing
+│   │   ├── components/     
+│   │   ├── pages/          
+│   │   ├── hooks/          
+│   │   └── App.jsx         
 │   └── vite.config.js
 │
 ├── supabase/
-│   ├── index.ts            POST /triage endpoint       
-│   └── constants.ts         Symptom keywords & body parts
+│   ├── index.ts                   
+│   └── constants.ts         
 │
 └── README.md
 ```
@@ -129,14 +129,6 @@ SUPABASE_SERVICE_ROLE_KEY=xxxx
 ---
 
 ## ▶️ Running the Project Locally
-
-### Backend
-```bash
-cd backend
-npm install
-npm run dev
-# Runs on http://localhost:5000
-```
 
 ### Frontend
 ```bash
