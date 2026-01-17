@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AnimatedButton from "../components/AnimatedButton";
 import { useReducedMotion } from "../hooks/useReducedMotion";
@@ -10,6 +10,18 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const prefersReduced = useReducedMotion();
 
+  /* ------------------------------------------------------------------
+     WARM UP EDGE FUNCTION (prevents first-request partial response)
+  ------------------------------------------------------------------ */
+  useEffect(() => {
+    fetch(
+      "https://lyqggxnqakznbsidbmef.supabase.co/functions/v1/triage"
+    ).catch(() => {});
+  }, []);
+
+  /* ------------------------------------------------------------------
+     ANIMATION VARIANTS
+  ------------------------------------------------------------------ */
   const resultContainerVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -27,6 +39,9 @@ export default function Chat() {
     },
   };
 
+  /* ------------------------------------------------------------------
+     SEND MESSAGE
+  ------------------------------------------------------------------ */
   const sendMessage = async () => {
     if (!message.trim()) return;
 
@@ -45,8 +60,24 @@ export default function Chat() {
       );
 
       const data = await res.json();
-      if (!res.ok) setError(data.error || "An error occurred");
-      else setResult(data);
+
+      if (!res.ok) {
+        setError(data?.error || "Service temporarily unavailable");
+        return;
+      }
+
+      // HARD VALIDATION — prevents incomplete render on cold start
+      if (
+        !data ||
+        !data.urgency ||
+        !data.department ||
+        !data.explanation
+      ) {
+        setError("Service is warming up. Please try again.");
+        return;
+      }
+
+      setResult(data);
     } catch {
       setError("Unable to connect to server. Please try again later.");
     } finally {
@@ -84,11 +115,7 @@ export default function Chat() {
           className="text-center mb-10"
           initial={prefersReduced ? false : { opacity: 0, y: -20 }}
           animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
-          transition={
-            prefersReduced
-              ? { duration: 0 }
-              : { duration: 0.4, ease: "easeOut" }
-          }
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
             Symptom Assessment
@@ -129,51 +156,23 @@ export default function Chat() {
             </AnimatedButton>
           </div>
 
-          {/* English Availability Warning */}
-          <motion.div
-            className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg"
-            initial={prefersReduced ? false : { opacity: 0, y: -10 }}
-            animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
-            transition={
-              prefersReduced
-                ? { duration: 0 }
-                : { duration: 0.3, ease: "easeOut" }
-            }
-          >
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-xs text-amber-800">
               <strong>Note:</strong> This service is currently available in English only.
             </p>
-          </motion.div>
+          </div>
         </section>
 
-        {/* Loading Indicator */}
+        {/* Loading */}
         <AnimatePresence>
           {loading && (
             <motion.div
               className="mb-6 flex justify-center"
-              initial={prefersReduced ? false : { opacity: 0, scale: 0.9 }}
-              animate={prefersReduced ? {} : { opacity: 1, scale: 1 }}
-              exit={prefersReduced ? false : { opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
             >
               <div className="flex items-center gap-3 bg-white rounded-lg p-4 border border-gray-100 shadow-sm">
-                <div className="flex gap-1">
-                  <motion.div
-                    className="w-2 h-2 bg-[#4a51bd] rounded-full"
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 0.8, repeat: Infinity }}
-                  />
-                  <motion.div
-                    className="w-2 h-2 bg-[#4a51bd] rounded-full"
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 0.8, repeat: Infinity, delay: 0.2 }}
-                  />
-                  <motion.div
-                    className="w-2 h-2 bg-[#4a51bd] rounded-full"
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 0.8, repeat: Infinity, delay: 0.4 }}
-                  />
-                </div>
                 <span className="text-sm text-gray-600 font-medium">
                   Analyzing your symptoms...
                 </span>
@@ -189,20 +188,17 @@ export default function Chat() {
               className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
               variants={shakeVariants}
               animate="shake"
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
             >
-              <p className="text-sm text-red-800 font-medium">Error</p>
               <p className="text-sm text-red-700">{error}</p>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Results */}
+        {/* Result */}
         <AnimatePresence>
           {result && (
             <motion.section
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12 pl-20"
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12"
               variants={resultContainerVariants}
               initial="hidden"
               animate="visible"
@@ -212,133 +208,60 @@ export default function Chat() {
                 <h2 className="text-2xl font-semibold text-gray-900">
                   Assessment Result
                 </h2>
-                <motion.button
+                <button
                   onClick={resetAssessment}
-                  className="text-sm text-[#4a51bd] font-medium hover:underline transition-colors"
-                  whileHover={prefersReduced ? {} : { scale: 1.05 }}
-                  whileTap={prefersReduced ? {} : { scale: 0.95 }}
+                  className="text-sm text-[#4a51bd] font-medium hover:underline"
                 >
                   New assessment
-                </motion.button>
+                </button>
               </div>
 
               <div className="space-y-6">
-                <motion.div
-                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
-                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
-                  transition={
-                    prefersReduced
-                      ? { duration: 0 }
-                      : { duration: 0.3, ease: "easeOut" }
-                  }
-                >
-                  <p className="text-sm font-medium text-gray-700 mb-1">
+                <div>
+                  <p className="text-sm font-medium pb-1 text-gray-700 mb-1">
                     Urgency Level
                   </p>
-                  <motion.span
-                    className={`inline-block px-4 py-2 rounded-full border text-sm font-semibold mt-3 ${urgencyStyle(
+                  <span
+                    className={`inline-block px-4 py-2 rounded-full border text-sm font-semibold ${urgencyStyle(
                       result.urgency
                     )}`}
-                    initial={prefersReduced ? false : { opacity: 0, scale: 0.95 }}
-                    animate={
-                      prefersReduced ? {} : { opacity: 1, scale: 1 }
-                    }
-                    transition={
-                      prefersReduced
-                        ? { duration: 0 }
-                        : { duration: 0.3, ease: "easeOut" }
-                    }
                   >
                     {result.urgency}
-                  </motion.span>
-                </motion.div>
+                  </span>
+                </div>
 
-                <motion.div
-                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
-                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
-                  transition={
-                    prefersReduced
-                      ? { duration: 0 }
-                      : { duration: 0.3, delay: 0.1, ease: "easeOut" }
-                  }
-                >
+                <div>
                   <p className="text-sm font-medium text-gray-700 mb-1">
                     Recommended Department
                   </p>
-                  <p className="text-gray-700 pl-5 pt-1">{result.department}</p>
-                </motion.div>
+                  <p className="text-gray-500 pl-2">{result.department}</p>
+                </div>
 
-                <motion.div
-                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
-                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
-                  transition={
-                    prefersReduced
-                      ? { duration: 0 }
-                      : { duration: 0.3, delay: 0.15, ease: "easeOut" }
-                  }
-                >
+                <div>
                   <p className="text-sm font-medium text-gray-700 mb-1">
                     Explanation
                   </p>
-                  <p className="text-gray-700  pl-5 pt-1 leading-relaxed">
+                  <p className="text-gray-500 pl-2 leading-relaxed">
                     {result.explanation}
                   </p>
-                </motion.div>
+                </div>
 
-                <motion.div
-                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
-                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
-                  transition={
-                    prefersReduced
-                      ? { duration: 0 }
-                      : { duration: 0.3, delay: 0.2, ease: "easeOut" }
-                  }
-                >
+                <div>
                   <p className="text-sm font-medium text-gray-700 mb-1">
                     Medical Attention
                   </p>
-                  <p className="text-gray-700 pt-1 pl-5 leading-relaxed">
+                  <p className="text-gray-500 pl-2 leading-relaxed">
                     {result.medical_attention}
                   </p>
-                </motion.div>
+                </div>
 
-                <motion.div
-                  className="bg-gray-50 border-l-4 border-gray-400 p-4 rounded-lg"
-                  initial={prefersReduced ? false : { opacity: 0, y: 10 }}
-                  animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
-                  transition={
-                    prefersReduced
-                      ? { duration: 0 }
-                      : { duration: 0.3, delay: 0.25, ease: "easeOut" }
-                  }
-                >
+                <div className="bg-gray-50 border-l-4 border-gray-400 p-4 rounded-lg">
                   <p className="text-xs text-gray-600">
                     {result.disclaimer}
                   </p>
-                </motion.div>
+                </div>
               </div>
             </motion.section>
-          )}
-        </AnimatePresence>
-
-        {/* Footer Disclaimer */}
-        <AnimatePresence>
-          {!result && (
-            <motion.div
-              className="mt-8 bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800"
-              initial={prefersReduced ? false : { opacity: 0, y: 20 }}
-              animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
-              exit={prefersReduced ? false : { opacity: 0, y: 20 }}
-              transition={
-                prefersReduced
-                  ? { duration: 0 }
-                  : { duration: 0.3, ease: "easeOut" }
-              }
-            >
-              <strong>Medical Disclaimer:</strong> This tool provides triage guidance only.
-              It does not replace professional medical advice. In emergencies, contact
-              emergency services immediately.
-            </motion.div>
           )}
         </AnimatePresence>
       </div>

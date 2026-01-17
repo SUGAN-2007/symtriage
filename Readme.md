@@ -1,109 +1,180 @@
-# Symtriage - Medical Symptom Triage Application
+# SympTriage – AI-Based Medical Symptom Triage System
 
-AI-powered symptom triage assessment with urgency classification and department recommendations. Built with React, Tailwind, Framer Motion (frontend) and Express, Supabase (backend).
+SympTriage is a **healthcare-focused web application** that helps users understand the **urgency of their symptoms** and the **appropriate medical department** to consult.
 
-## 🚀 Quick Start
+The system provides **triage guidance only**.  
+It does **NOT** diagnose diseases, prescribe medication, or replace professional medical advice.
 
-### Prerequisites
-- Node.js 18+, npm 9+
-- OpenRouter API key
-- Supabase account
+---
 
-### Setup
+## 🚀 Overview
 
-```bash
-# Backend
-cd backend && npm install
-# Create .env with: OPENROUTER_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
-npm run dev  # http://localhost:5000
+Users describe their symptoms in natural language.  
+The system validates that the input is health-related, analyzes it using an AI model, and returns:
 
-# Frontend (new terminal)
-cd frontend && npm install
-npm run dev  # http://localhost:5173
-```
+- Urgency level: **Low / Medium / High**
+- Recommended medical department
+- A short, calm explanation
+- Guidance on whether professional medical attention is advised
+- A mandatory medical disclaimer
+
+The design prioritizes **safety, privacy, and responsible AI use in healthcare**.
+
+---
+
+## 🧩 Tech Stack
+
+### Frontend
+- **React 19.1** (Vite)
+- **React Router**
+- **Tailwind CSS** (light, healthcare-safe UI)
+- **Framer Motion** (subtle animations with reduced-motion support)
+
+### Backend
+- **Express.js**
+- **OpenRouter API** (GPT-4o-mini)
+- **Supabase** (PostgreSQL – anonymized logging)
+
+---
 
 ## 📁 Project Structure
 
 ```
-symptriage/
-├── frontend/              React 19.1, Vite, Tailwind, Framer Motion
+symtriage/
+├── frontend/
 │   ├── src/
-│   │   ├── components/   Header, AnimatedButton, AnimatedCard
-│   │   ├── pages/        Home, Chatbot (main), About
-│   │   ├── hooks/        useReducedMotion (accessibility)
-│   │   └── App.jsx       Router with 3 pages
-├── backend/               Express, Supabase, OpenRouter AI
-│   ├── index.js          POST /triage endpoint
-│   ├── supabase.js       Database client
-│   └── symptoms.js       ~90 symptom keywords + body parts
+│   │   ├── components/     Header, animated UI components
+│   │   ├── pages/          Home, Chat, About
+│   │   ├── hooks/          useReducedMotion (accessibility)
+│   │   └── App.jsx         Application routing
+│   └── vite.config.js
+│
+├── supabase/
+│   ├── index.ts            POST /triage endpoint       
+│   └── constants.ts         Symptom keywords & body parts
+│
 └── README.md
 ```
 
-## 🎯 Key Features
+---
 
-- **AI Triage**: GPT-4o-mini analyzes symptoms → urgency (Low/Medium/High) + department
-- **Smooth Animations**: Framer Motion with accessibility (prefers-reduced-motion)
-- **Privacy**: Anonymized logging, no PHI stored
-- **Responsive**: Mobile-optimized with animated mobile menu
-- **Error Handling**: Intent validation, shake animation on errors
+## 🧠 Core Features
 
-## 🔧 Frontend Stack
-- React 19.1.1, React Router 7.12.0
-- Vite 7.1.7, Tailwind 4.1.18
-- Framer Motion 12.26.2
-- Run: `npm run dev` | Build: `npm run build`
+- **Symptom Intent Validation**  
+  Rejects non-health or unrelated prompts to prevent misuse.
 
-## ⚙️ Backend Stack
-- Express 5.2.1, CORS enabled
-- Supabase (@supabase/supabase-js 2.90.1)
-- OpenRouter API (GPT-4o-mini routing)
-- Run: `npm run dev` | Port: 5000
+- **AI Triage Analysis**  
+  Classifies urgency and suggests a medical department without diagnosing.
 
-## 📊 API: POST /triage
+- **Privacy-Aware Logging**  
+  Only anonymized symptom data and AI output levels are stored.  
+  No names, no personal identifiers, no free-text medical history.
 
-**Request**: `{ "message": "I have a fever and headache" }`
+- **Responsive UI**  
+  Works cleanly across desktop, tablet, and mobile screens.
 
-**Response** (200):
+- **Accessible Animations**  
+  All motion respects system “reduced motion” preferences.
+
+---
+
+## 🔌 API Reference
+
+### `POST /triage`
+
+**Request**
 ```json
 {
-  "urgency": "Medium",
-  "department": "Emergency Medicine",
-  "explanation": "...",
-  "medical_attention": "Seek care within 24h",
-  "disclaimer": "Not a diagnosis"
+  "message": "I have chest discomfort and shortness of breath"
 }
 ```
 
-## .env Template (Backend)
+**Response**
+```json
+{
+  "urgency": "High",
+  "department": "Emergency Medicine",
+  "explanation": "The symptoms described may require urgent medical evaluation.",
+  "medical_attention": "Seek immediate professional medical attention.",
+  "disclaimer": "This is not a medical diagnosis and does not replace professional medical advice."
+}
 ```
-OPENROUTER_API_KEY=sk-or-v1-xxx
-SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=xxx
-```
-
-## 🎨 UI/UX
-- **Colors**: Primary #4a51bd, Urgency (Green/Yellow/Red)
-- **Animations**: 150-350ms entrance/interaction, GPU-accelerated
-- **Accessibility**: All animations respect system preferences
-
-## 📱 Pages
-- **Home**: Hero + How It Works (animated stagger)
-- **Chatbot**: Symptom input → Assessment results with urgency badge
-- **About**: Triage info, limitations, disclaimer
-
-## 🔒 Security
-- Intent validation (symptom queries only)
-- Service role key server-side only
-- Anonymized logs (symptoms only)
-- No PII stored
-
-## 📝 Troubleshooting
-- Port 5000 in use? Kill process or change port in index.js
-- Build fails? Run `npm install` in respective directory
-- Backend not found? Ensure running on http://localhost:5000
-
-## ⚠️ Medical Disclaimer
-Educational tool only. NOT a substitute for professional medical advice. Always consult healthcare professionals.
 
 ---
-**Author**: SUGAN-2007 | **License**: ISC | **Repo**: https://github.com/SUGAN-2007/symtriage
+
+## 🗄️ Database Usage (Supabase)
+
+The database is used **only for system-level logging**, not patient records.
+
+Stored fields include:
+- Timestamp
+- Anonymized symptom keywords
+- Urgency level
+- Recommended department
+
+**No personally identifiable information (PII) is stored.**
+
+---
+
+## ⚙️ Environment Variables (Backend)
+
+Create a `.env` file inside `/backend`:
+
+```env
+OPENROUTER_API_KEY=sk-or-v1-xxxx
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=xxxx
+```
+
+---
+
+## ▶️ Running the Project Locally
+
+### Backend
+```bash
+cd backend
+npm install
+npm run dev
+# Runs on http://localhost:5000
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+# Runs on http://localhost:5173
+```
+
+---
+
+## 🔒 Security & Safety Design
+
+- Input restricted to symptom-related health concerns
+- AI instructed to avoid diagnoses and treatment advice
+- Service role keys never exposed to frontend
+- Mandatory medical disclaimers in all responses
+
+---
+
+## 📄 Pages
+
+- **Home** – Introduction, workflow, safety notice
+- **Chat** – Symptom input and triage result
+- **About** – System explanation, limitations, and disclaimers
+
+---
+
+## ⚠️ Medical Disclaimer
+
+SympTriage is an **educational triage guidance tool only**.  
+It does **NOT** provide medical diagnoses, treatment plans, or prescriptions.
+
+Always consult a qualified healthcare professional for medical advice.  
+In emergencies, contact emergency services immediately.
+
+---
+
+**Author**: Sugan  
+**License**: ISC  
+**Repository**: https://github.com/SUGAN-2007/symtriage

@@ -44,7 +44,7 @@ export default function Header() {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center space-x-3 hover:opacity-80 transition"
+            className="flex items-center space-x-3 hover:opacity-80 transition "
           >
             <img src="/icon.png" alt="SympTriage" className="h-8 w-8" />
             <span className="text-lg sm:text-xl font-semibold text-gray-900">
