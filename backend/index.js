@@ -35,6 +35,11 @@ function extractSymptoms(text) {
 }
 
 /* ---------------- TRIAGE ENDPOINT ---------------- */
+app.get("/triage", (req, res) => {
+    res.json({
+        message: "Welcome to the Clinical Triage API",})
+    });
+    
 app.post("/triage", async (req, res) => {
     const { message } = req.body;
 
