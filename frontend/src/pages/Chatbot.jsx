@@ -128,7 +128,59 @@ export default function Chat() {
               Get Assessment
             </AnimatedButton>
           </div>
+
+          {/* English Availability Warning */}
+          <motion.div
+            className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg"
+            initial={prefersReduced ? false : { opacity: 0, y: -10 }}
+            animate={prefersReduced ? {} : { opacity: 1, y: 0 }}
+            transition={
+              prefersReduced
+                ? { duration: 0 }
+                : { duration: 0.3, ease: "easeOut" }
+            }
+          >
+            <p className="text-xs text-amber-800">
+              <strong>Note:</strong> This service is currently available in English only.
+            </p>
+          </motion.div>
         </section>
+
+        {/* Loading Indicator */}
+        <AnimatePresence>
+          {loading && (
+            <motion.div
+              className="mb-6 flex justify-center"
+              initial={prefersReduced ? false : { opacity: 0, scale: 0.9 }}
+              animate={prefersReduced ? {} : { opacity: 1, scale: 1 }}
+              exit={prefersReduced ? false : { opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="flex items-center gap-3 bg-white rounded-lg p-4 border border-gray-100 shadow-sm">
+                <div className="flex gap-1">
+                  <motion.div
+                    className="w-2 h-2 bg-[#4a51bd] rounded-full"
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 0.8, repeat: Infinity }}
+                  />
+                  <motion.div
+                    className="w-2 h-2 bg-[#4a51bd] rounded-full"
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: 0.2 }}
+                  />
+                  <motion.div
+                    className="w-2 h-2 bg-[#4a51bd] rounded-full"
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: 0.4 }}
+                  />
+                </div>
+                <span className="text-sm text-gray-600 font-medium">
+                  Analyzing your symptoms...
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Error */}
         <AnimatePresence>
@@ -150,7 +202,7 @@ export default function Chat() {
         <AnimatePresence>
           {result && (
             <motion.section
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8"
+              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 sm:p-12 pl-20"
               variants={resultContainerVariants}
               initial="hidden"
               animate="visible"
@@ -184,7 +236,7 @@ export default function Chat() {
                     Urgency Level
                   </p>
                   <motion.span
-                    className={`inline-block px-4 py-2 rounded-full border text-sm font-semibold ${urgencyStyle(
+                    className={`inline-block px-4 py-2 rounded-full border text-sm font-semibold mt-3 ${urgencyStyle(
                       result.urgency
                     )}`}
                     initial={prefersReduced ? false : { opacity: 0, scale: 0.95 }}
@@ -213,7 +265,7 @@ export default function Chat() {
                   <p className="text-sm font-medium text-gray-700 mb-1">
                     Recommended Department
                   </p>
-                  <p className="text-gray-900">{result.department}</p>
+                  <p className="text-gray-700 pl-5 pt-1">{result.department}</p>
                 </motion.div>
 
                 <motion.div
@@ -228,7 +280,7 @@ export default function Chat() {
                   <p className="text-sm font-medium text-gray-700 mb-1">
                     Explanation
                   </p>
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-gray-700  pl-5 pt-1 leading-relaxed">
                     {result.explanation}
                   </p>
                 </motion.div>
@@ -245,7 +297,7 @@ export default function Chat() {
                   <p className="text-sm font-medium text-gray-700 mb-1">
                     Medical Attention
                   </p>
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-gray-700 pt-1 pl-5 leading-relaxed">
                     {result.medical_attention}
                   </p>
                 </motion.div>
