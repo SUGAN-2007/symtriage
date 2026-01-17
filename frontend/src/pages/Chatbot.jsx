@@ -35,11 +35,14 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://symtriage.onrender.com/triage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
+      const res = await fetch(
+        "https://lyqggxnqakznbsidbmef.supabase.co/functions/v1/triage",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        }
+      );
 
       const data = await res.json();
       if (!res.ok) setError(data.error || "An error occurred");
