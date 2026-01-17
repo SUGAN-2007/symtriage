@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "triage": {
-      "verify_jwt": false
-    }
-  }
-}
