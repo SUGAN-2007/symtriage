@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
-import { symptomKeywords, bodyParts } from "./constants.ts";
+import { symptomKeywords} from "./constants.ts";
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -14,8 +14,7 @@ function isSymptomIntent(text: string): boolean {
 
   const input = text.toLowerCase().trim();
   return (
-    symptomKeywords.some((w) => input.includes(w)) ||
-    bodyParts.some((b) => input.includes(b.toLowerCase()) && input.includes("pain"))
+    symptomKeywords.some((w) => input.includes(w)) || input.includes("pain"))
   );
 }
 
