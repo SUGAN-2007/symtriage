@@ -15,7 +15,6 @@ function isSymptomIntent(text: string): boolean {
   const input = text.toLowerCase().trim();
   return (
     symptomKeywords.some((w) => input.includes(w)) || input.includes("pain"))
-  );
 }
 
 /**
