@@ -134,7 +134,7 @@ export default function Chat() {
 
           <textarea
             rows={5}
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl resize-none placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-300 transition-all ease-in-out duration-300 outline-none"
+            className="w-full font-mono font-medium text-gray-700 px-4 py-3 border border-gray-200 rounded-xl resize-none placeholder-gray-500 focus:border-gray-500 focus:placeholder-gray-300 transition-all ease-in-out duration-300 outline-none"
             placeholder="Example: I have leg pain and swelling for the last 2 days"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
